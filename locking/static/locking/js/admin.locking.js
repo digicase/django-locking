@@ -115,10 +115,11 @@ var DJANGO_LOCKING = DJANGO_LOCKING || {};
                 'grp-add-handler', 'add-handler',
                 'add-another',
                 'grp-delete-handler', 'delete-handler',
-                'delete-link',
+                'delete-link', 'grp-delete-link',
                 'remove-handler', 'grp-remove-handler',
                 'arrow-up-handler', 'grp-arrow-up-handler',
-                'arrow-down-handler', 'grp-arrow-down-handler'
+                'arrow-down-handler', 'grp-arrow-down-handler',
+                'related-lookup'
             ]);
             if (isHandler) {
                 e.stopPropagation();
@@ -284,7 +285,7 @@ var DJANGO_LOCKING = DJANGO_LOCKING || {};
         updateNotification: function(text, data) {
             $('html, body').scrollTop(0);
             text = interpolate(text, data, true);
-            this.$notificationElement.html(text).hide().fadeIn('slow');
+            this.$notificationElement.html(text).hide().fadeIn();
         },
         // Locking toggle function
         removeLockOnClick: function(e) {
@@ -311,18 +312,21 @@ var DJANGO_LOCKING = DJANGO_LOCKING || {};
         }
     });
     $.fn.djangoLocking = function() {
-        // Only use the first element in the jQuery list
-        var $this = this.eq(0);
-        var lockManager = $this.data('djangoLocking');
+        var lockManager = this.data('djangoLocking');
         if (!lockManager) {
-            lockManager = new LockManager($this);
+            lockManager = new LockManager(this);
         }
         return lockManager;
     };
 
     $(document).ready(function() {
-        var $target = $("#content-inner, #content").eq(0);
-        var $notificationElement = $('<div id="locking_notification"></div>').prependTo($target);
+        if ($('.grp-messagelist').length === 0) {
+            var $grpContent = $("#grp-content");
+            $('<ul class="grp-messagelist"></ul>').prependTo($grpContent);
+        }
+        var $target = $(".grp-messagelist");
+        $target.css('padding', '0');
+        var $notificationElement = $('<li class="grp-warning locking-message"></li>').prependTo($target);
         $notificationElement.djangoLocking();
     });
 
